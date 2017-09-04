@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>calculator</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <script src="http://yanxuan.nosdn.127.net/hxm/yanxuan-wap/p/20161201/js/flexible-91f17d527a.js"></script>
+    <script src="js/vue.js"></script>
+    <script src="js/vue-router.js"></script>
+    <script src="js/vuex.js"></script>
+</head>
+<body>
+<div id="app">
+    <div class="content">
+    <div class="result">{{ result }}</div>
+    <div class="enter">{{ enter==""?0:enter }}</div>
+    </div>
+        <div class="list">
+            <!--键盘区域-->
+            <keyboard v-for="item in keys" :value="item" class="keys"></keyboard>
+        </div>
+</div>
+<script>
+    const store=new Vuex.Store({
+        state:{
+            result:"",
+            enter:""
+        },
+        mutations:{
+            calculate(state,value){
+                if(value==='='){
+                    //按键值为=，进行结果计算
+                    state.result=eval(state.enter);
+                    state.enter+=value;
+                }else if(value==='clear'){
+                    //按键值为clear，清空数据
+                    state.result=state.enter='';
+                }else{
+                    //输入enter进行拼接
+                    state.enter+=value;
+                }
+            }
+        }
+    });
+    Vue.component('keyboard',{
+        //接受参数的value，代表键盘的值
+        props:['value'],
+        //模板
+        template:`<div @click="getKeyboardValue" :data-value="value">{{value}}</div>`,
+        methods:{
+            getKeyboardValue(event){
+                //获取当前的键值
+                let value=event.target.dataset.value;
+                //通过commit提交mutation
+                this.$store.commit('calculate',value);
+            }
+        }
+    });
+    const app=new Vue({
+        el:"#app",
+        store,
+        data: {
+            keys: [
+                'clear', '+', '-', '*',
+                '7', '8', '9', '/',
+                '4', '5', '6', '0',
+                '1', '2', '3', '=',
+            ]
+        },
+        computed:{
+            result(){
+                //通过this.$store获取仓库数据result
+                return this.$store.state.result;
+            },
+            enter(){
+                //通过this.$store获取仓库数据enter
+                return this.$store.state.enter;
+            }
+        }
+    });
+</script>
+</body>
+</html>
